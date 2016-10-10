@@ -1,6 +1,8 @@
 Tasks = new Mongo.Collection('tasks');
 
 if (Meteor.isClient) {
+  Meteor.subscribe('tasks');
+
   Template.tasks.helpers({
     tasks: function() {
       return Tasks.find({}, {sort: {createdAt: -1}});
@@ -25,7 +27,9 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-
+  Meteor.publish('tasks', function(){
+    return Tasks.find({userId: this.userId});
+  });
 }
 
 Meteor.methods({
@@ -34,7 +38,7 @@ Meteor.methods({
       throw new Meteor.Error('No Access');
     }
     Tasks.insert({
-      name: name, createdAt: new Date()
+      name: name, createdAt: new Date(), userId: Meteor.userId()
     });
   },
 
